@@ -23,6 +23,18 @@ dotenv.config({
 //db may index.js file bani vaha connection ka code likha aur aus ko export kara ab yaha import karay gay 
 
 connectDB()
+//connectDB ak async function tha to ais may promisses bhi return hoti hain to ham .then and .catch bhi use kar saktay hain 
+
+.then(()=>{
+    app.listen(process.env.PORT || 8000, ()=>{
+        console.log(`Server is reunning at port : ${process.env.PORT}`);
+
+    })
+})
+.catch((err)=>{
+    console.log("Mongodb connection failed !!! ",err);
+})
+
 
 
 
