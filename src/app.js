@@ -23,4 +23,19 @@ app.use(express.static('public'))
 //user kay browser kay cookies kay liay
 app.use(cookieParser())
 
+
+
+//routes import
+import userRouter from './routes/user.routes.js'
+
+//routes declearation
+
+// phalay ham app.get kar kay route banatay thay lakin ab route ko alg folder dia hay to app.use agey aus ka name jaha say import kia hay 
+
+app.use('/api/v1/users',userRouter)
+//to ab confusion ho gaya kay ham nay bola hay /user pay jao aur ager userRouter dia hay vaha hay /register pay jay to kasay ho ga to ya kuch asa hota hay 
+
+//ham nay bola /user pay jao jo kay userRouter pay lay ja raha hay vaha likha hay /register .phir method to hamara link asa banay ga   http://localhost:8000/api/v1/users/register   asi say ya ho ga kay ager phir ap ko login bhi banana hay to ham app.js may koi changing nahi karin gay vaha same code dain gay /login pay phir hamara link asa ho jay ga  http://localhost:8000/api/v1/users/login to clean rahay ga 
+
+
 export {app}
