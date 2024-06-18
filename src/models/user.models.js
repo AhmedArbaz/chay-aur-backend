@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { JsonWebTokenError } from "jsonwebtoken";
+import  JsonWebTokenError  from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 
 // bcrypt use hota hay password ko hash may change karnay kay liay aur 
@@ -61,7 +61,7 @@ userSchema.pre("save",async function (next) {// next last class may
     if(!this.isModified('password')) return next();
     //ya bola !nahi hay modified to return karo next varna modified hay to kar lo 
 
-    this.password = bcrypt.hash(this.password,10)
+    this.password = await bcrypt.hash(this.password,10)
     next()
 })
 

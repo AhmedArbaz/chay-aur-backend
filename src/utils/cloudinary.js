@@ -13,7 +13,7 @@ import fs from 'fs'
     });
 
 
-    const uploadOnCloudinary = async (localFilePath)=>{
+    const uploadOnCloudinary = async (localFilePath)=>{// yaha ham nay parameter dia aur ais ko user controler may use kar lia 
         try {
             if(!localFilePath) return null
         
@@ -33,6 +33,7 @@ import fs from 'fs'
         }
     }
 
+    export {uploadOnCloudinary}
 
 
 

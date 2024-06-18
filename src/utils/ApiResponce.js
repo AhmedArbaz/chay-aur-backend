@@ -6,3 +6,4 @@ class ApiResponce{
         this.success = statusCode <400 //ya ham dakh lain gay kay kon say error pay kia code send karin 
     }
 }
+export {ApiResponce}

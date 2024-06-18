@@ -10,7 +10,7 @@ import connectDB from "./db/index.js";
 import {app} from "./app.js"
 
 dotenv.config({
-    path:"./env"
+    path:"./.env"
 })
 //ab ham nay require ki jaga import ko use kar to lia lakin asay thori kam chalay ga to hmin .joson may ja kay script may -r dotenv/config --experimental-json-modules src/index.js
 
