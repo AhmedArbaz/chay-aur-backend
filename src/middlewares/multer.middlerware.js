@@ -6,7 +6,7 @@ import multer from "multer"
 //express ko aisi liay use nahi kia kay aus may only req ,res hota hay to multer ak extra data hay file ka ager multer use nahi karty to express fileuploder kar latay vo bhi yahi file option data hay 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, '/public/temp')
+      cb(null, './public/temp')
     },
     filename: function (req, file, cb) {
     //   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)

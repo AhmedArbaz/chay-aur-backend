@@ -1,6 +1,8 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/user.controllers.js";
+import { loginUser, logoutUser, registerUser } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middlerware.js";
+import { verifyJWT } from "../middlewares/auth.middlewar.js";
+
 // ya middleware ka upload use kia hay kay file ko kasay handle karin gay middleware hay to matlab kay janay say phalay mil kar jao to ais ko apny registerUser say phalay laga dain gay 
 
 
@@ -21,5 +23,10 @@ router.route("/register").post(
 
     ]),
        registerUser)
+
+router.route("/login").post(loginUser)
+
+//secured routes
+router.route("/logout").post(verifyJWT,logoutUser)
 
 export default router

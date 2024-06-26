@@ -9,6 +9,23 @@ import { ApiResponce } from "../utils/ApiResponce.js";
 
 
 
+const generateAccessAndRefreshTokens = async(userId)=>{
+    try {
+const user = await User.findById(userId)
+const accessToken = user.generateAccessToken()
+const generaTetoken = user.generateRefreshToken()
+
+user.refreshToken = refreshToken
+ await user.save({validateBeforeSave: false}) // yaha sari validation khatam kar di kay hata do validation ko Q kay varn password required hay phir aus ko dalna paray ga to ais liay ham nay bola hamin pata hay tum direct save karo vaha ja kay 
+
+ return{accessToken,refreshToken}
+
+    } catch (error) {
+        throw new ApiError(500,"Something went worng while generating refresh and access token")
+    }
+
+}
+
 
 
 //asyncHandler ak function banaya tha jo kay higher order function hay Q kay ya ak function ko as argumente lata hay call back ,pormisses vala jo code tha aus may samja tha ya ya phir typescript ki class may samja tha aus may zada acha samaj aya tha 
@@ -28,7 +45,7 @@ const registerUser = asyncHandler(async (req,res)=>{ //vasay to req,res,err,next
     //ya sab to hamin .body say mil jain gi lakin jo hamari files hain eg. images,aur avtar aus ka dakin gay abhi 
     const {fullname,email,username,password} = req.body 
 console.log("email:",email);
-console.log('username',username); //ais ko test kay liay postman pay gay aur apna url dala localhost:8000/api/v1/users/register phir raw may ham nay email dali are send kia to log hoa data 
+ //ais ko test kay liay postman pay gay aur apna url dala localhost:8000/api/v1/users/register phir raw may ham nay email dali are send kia to log hoa data 
 
 
 // 2 check validations
@@ -42,7 +59,7 @@ if (
 
 //3- checking if userExist or not
 
-const existedUser = User.findOne({
+const existedUser = await User.findOne({
     $or:[{username},{email}] //asay ham $ or dal kay array do aur phir jitnay bhi check karnay hain aun ka obj day do  
 })
 if(existedUser){
@@ -77,7 +94,7 @@ const user = await User.create({
     coverImage:coverImage?.url || "",
     email,
     password,
-    uername:uername.toLowerCase()
+    username:username.toLowerCase()
 })
 
 // 8. checking and removing password,refreshToken from entry 
@@ -101,12 +118,102 @@ return res.status(201).json(
 )
 
 
+
+
+
+})
+
+
+const loginUser = asyncHandler(async (req,res) =>{
+    //req body -> data
+    // username or email 
+    // find the user
+    // password check
+    // access and refresh token 
+    //send cookie
+
+
+
+    //1. req body -> data
+
+    const {email,username,password} = req.body
+    if(!username || !email){
+        throw new ApiError(400,"username or password is required")
+    }
+
+
+
+    //2. username or email 
+     
+    const user = await User.findOne({
+        $or: [{username},{email}] // ya mongodb ka operator hay jo kay use karta hay aray may obj kay elements ko 
+    })
+
+    if(!user){
+        throw new ApiError(404,"user does not exist")
+    }
+
+
+    //4. password check
+
+    //ham ager User ya vala likhin gay to jo ham nay khud methods banay hain isPasswordCorrect valay to nahi milin gay Q kay ham nay User ko user may store karaya hay user hamara vapis call kia hay to aus ko user may store karaya hay 
+const isPasswordValid = await user.isPasswordCorrect(password)
+if (!isPasswordValid) {
+    throw new ApiError(401, 'Invalid user credentials')
+}
+
+    //5. access and refresh token 
+
+   const {accessToken,refreshToken} =  await generateAccessAndRefreshTokens(user._id) //auper method bana dia Q kay agay bhi refresh, access tokens ko use karin gay to ais liay method bana kay use karin to zada acha hay 
+
+
+//    optional ager user ko ya dana hay to do varna nahi do 
+   const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+   
+   
+   //    6.send cookies 
+const options = {
+    httpOnly:true, // ya ham nay kia hay kay koi bhi front-end say change na karay cookie ko only server say hi change ho sakti hain bas
+    secure: true,
+}
+
+//ya ham nay cookie-parser download kia tha package aus say ay ga 
+return res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",refreshToken,options).json(
+    new ApiResponce(200,{user:loggedInUser,accessToken,refreshToken},"User logged in Successfully")
+)
+
 })
     
+// ab logout user bana rahay hain 
+const logoutUser = asyncHandler(async(req,res)=>{
+   await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            //update karna kia hay to ham mongodb ka opearator use karin gay ya lata hay kia kia update karna hay bata do obj may 
+            $set: {
+                refreshToken: undefined
+            }
+        },
+       
+       {
+           new: true
+       } 
+    )
 
+    const options = {
+        httpOnly:true,
+        secure:true
+    }
+    return res.status(200)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(new ApiResponce(200,{},"User logged Out"))
+})
 
 
 
 export {
     registerUser,
+    loginUser,
+    logoutUser,
 }
