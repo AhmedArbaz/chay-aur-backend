@@ -50,7 +50,7 @@ console.log("email:",email);
 
 // 2 check validations
 if (
-    [fullname,email, username, password].some((filed) => filed?.trim() === "")//filde hay to trim kro ager phir bhi empty hy to true return ho ga to error a jay ga kisi ak nay bhi true return kia 
+    [fullname,email, username, password].some((field) => field?.trim() === "")//filde hay to trim kro ager phir bhi empty hy to true return ho ga to error a jay ga kisi ak nay bhi true return kia 
         //some method check karay ga condition sahi hay to true data hay varna false data hay 
 ){
     throw new ApiError(400,'All fields are required')
@@ -70,7 +70,7 @@ if(existedUser){
 // yaha phalay ham req.body kar rhay thay lakin ab ham nay middlewar use kia hay multer to vo access data hay files ka to ham ya kar sakty hain kay 
 
 
-const avatarLocalPath = req.files?.avater[0]?.path;
+const avatarLocalPath = req.files?.avatar[0]?.path;
 const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
 if(!avatarLocalPath){
@@ -79,18 +79,18 @@ if(!avatarLocalPath){
 
 //5. upload on cloudnary 
 //file bana li thi ausi ki imp karo aus may sara dala tha 
-const avater = await uploadOnCloudinary(avatarLocalPath)
+const avatar = await uploadOnCloudinary(avatarLocalPath)
 const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
 // 6. again check for avater
-if(!avater){
+if(!avatar){
     throw new ApiError(400,"Avatar file is required")
 }
 
 // 7. if all good then add entry on db
 const user = await User.create({
     fullname,
-    avater: avater.url,
+    avatar: avatar.url,
     coverImage:coverImage?.url || "",
     email,
     password,

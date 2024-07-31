@@ -12,10 +12,10 @@ app.use(cors({// app.use ka matlab hay kay configuration use kar rahay hain expr
 }))
 
 
-app.use(express.json({limit:'16kb'}))// aitna hi limit di hay 
+app.use(express.json({limit:'900kb'}))// aitna hi limit di hay 
 
 //urlencoded use hota hay kay kabhi search pay url may google+api asa ata hay kabhi google_api asay ata hay to aus kay liay extended ais liay kay obj kay ander aur obj day do zada extended use nahi hota 
-app.use(express.urlencoded({extended:true,limit:'16kb'}))
+app.use(express.urlencoded({extended:true,limit:'900kb'}))
 
 app.use(express.static('public'))
 //static use hota hay kay koi file rakhvani ho to images,pdf public may ain gi files
