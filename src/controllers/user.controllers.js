@@ -53,7 +53,7 @@ if (
     [fullname,email, username, password].some((filed) => filed?.trim() === "")//filde hay to trim kro ager phir bhi empty hy to true return ho ga to error a jay ga kisi ak nay bhi true return kia 
         //some method check karay ga condition sahi hay to true data hay varna false data hay 
 ){
-    throw new ApiError(400,'fullname is required')
+    throw new ApiError(400,'All fields are required')
 }
 
 
@@ -90,7 +90,7 @@ if(!avater){
 // 7. if all good then add entry on db
 const user = await User.create({
     fullname,
-    avatar: avatar.url,
+    avater: avater.url,
     coverImage:coverImage?.url || "",
     email,
     password,
