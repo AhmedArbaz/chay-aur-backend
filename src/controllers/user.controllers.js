@@ -13,7 +13,7 @@ const generateAccessAndRefreshTokens = async(userId)=>{
     try {
 const user = await User.findById(userId)
 const accessToken = user.generateAccessToken()
-const generaTetoken = user.generateRefreshToken()
+const refreshToken = user.generateRefreshToken()
 
 user.refreshToken = refreshToken
  await user.save({validateBeforeSave: false}) // yaha sari validation khatam kar di kay hata do validation ko Q kay varn password required hay phir aus ko dalna paray ga to ais liay ham nay bola hamin pata hay tum direct save karo vaha ja kay 
@@ -143,8 +143,8 @@ const loginUser = asyncHandler(async (req,res) =>{
     //1. req body -> data
 
     const {email,username,password} = req.body
-    if(!(username || !email)){
-        throw new ApiError(400,"username or password is required")
+    if(!username && !email){
+        throw new ApiError(400,"username or email is required")
     }
 
 
