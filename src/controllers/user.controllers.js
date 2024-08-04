@@ -264,6 +264,7 @@ try {
 }
 })
 
+// Change password
 const changeCurrentPassword = asyncHandler(async(req,res)=>{
     const {oldPassword,newPassword} = req.body
     const user = await User.findById(req.user?._id)
@@ -290,7 +291,7 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"All fields are required")
     }
 
-const user =  User.findByIdAndUpdate(req.user?._id,{
+const user = await User.findByIdAndUpdate(req.user?._id,{
         $set:{
             fullname,
             email:email,
@@ -361,6 +362,84 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
 })
 
 
+// We use aggrigation here to get channel profile
+const getUserChannelProfile = asyncHandler(async(req,res)=>{
+const {username}= req.params //ya req.params for if we want to take data from url
+if(!username?.trim()){
+    throw new ApiError(400,"username is missing")
+}
+    const channel = await User.aggregate([
+        {
+
+            $match: {
+                username:username?.toLowerCase(),
+            }
+        },
+
+        //this is a method of aggrigation in mongoose
+        // ya pipline hoti hay 
+        {
+            $lookup:{
+                from:"subscriptions", //ya ham nay dakha tha kay sab lowercase aur plural ho jaty hain 
+                localField:"_id",
+                foreignField:"channel",
+                as:"subscribers",
+                // ya sari fields ham nay mongodb atlas may hi agregation may ja kay dakha kia needs hoti hain from,localField,foreignField,as ya sari
+                
+            }
+        },
+        {
+            $lookup:{
+                from:"subscriptions",
+                localField:"_id",
+                foreignField:"subscriber",
+                as:"subscribedTo",
+            }
+            // lookup may to sab ko ak jaga pay kar lia tha ab sab ko add kar rahy hain
+        },
+        {
+            $addFields:{
+                subscribersCount:{
+                    $size:"$subscribers",// ya function hay jo kay use hota hay sab ko add karny kay liay
+                },
+                channelsSubscribedToCount:{
+                    $size:"$subscribedTo",
+                },
+                // yaha nichy ab ham check karna chahin gay kay subscribed hay ya nahi to agrigation hamin ak function data hay $cond: ais may if then,else hota hay jo kay condition hay 
+                
+                isSubscribed:{
+                    $cond:{
+                        if:{$in:[req.user?._id,"$subscribers.subscriber"]}, //in jo hay ais may vo array bhi dakh lata hay aur sath hi may obj bhi 
+                        then:true,
+                        else:false,
+                    }
+                }
+            }
+        },
+        {
+            // ya project hota hay jo kay use karty hain selected cheezin dain gay jo pass karny hay ausy 1 do 
+            $project:{
+                fullname:1,
+                username:1,
+                avatar:1,
+                subscribersCount:1,
+                channelsSubscribedToCount:1,
+                isSubscribed:1,
+                coverImage:1,
+                email:1,
+            }
+        },
+        
+    ])
+    // checking ager chanel hi nahi hay 
+if(!channel?.length){
+    throw new ApiError(404,"Channel not found")
+}
+return res.status(200).json(new ApiResponce(200,channel[0],"Channel profile fetched successfully"))
+})
+// ham nay ak hi bar may 3 piplines likh di ak match kia , then lookup kia subscribers kitny hain through chanel info,then lookup kia aus nay kitnon ko subscribe kia hay subscriber info, phir count kar lia condition laga kay ya bhi dakh lia kay agrigation may condition kasy lagti hay 
+
+
 export {
     registerUser,
     loginUser,
@@ -371,4 +450,5 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
+    getUserChannelProfile,
 }
