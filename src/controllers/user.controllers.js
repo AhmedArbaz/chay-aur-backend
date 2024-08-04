@@ -7,6 +7,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 import { ApiResponce } from "../utils/ApiResponce.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 
 
@@ -440,6 +441,55 @@ return res.status(200).json(new ApiResponce(200,channel[0],"Channel profile fetc
 // ham nay ak hi bar may 3 piplines likh di ak match kia , then lookup kia subscribers kitny hain through chanel info,then lookup kia aus nay kitnon ko subscribe kia hay subscriber info, phir count kar lia condition laga kay ya bhi dakh lia kay agrigation may condition kasy lagti hay 
 
 
+
+// New agragiation pipline
+const getWatchHistory = asyncHandler(async(req,res)=>{
+    const user = await User.aggregate([
+        {
+            $match:{
+                _id:new mongoose.Types.createFromHexString(req.user._id)
+            }
+        },
+        {
+            $lookup:{
+                // ais lookup may ham any videos say watchhistory authai hay 
+                from:"videos",
+                localField:"watchHistory",
+                foreignField:"_id",
+                as:"watchHistory",
+                pipeline:[
+                    {//ham nay lookup say vidoes say id lin lakin aun may owner bhi mix ho kay a gaya to aus ko khatam karny kay liay aisi may aur pipline laga kay nested pipline laga kay ham nay owner ko lay lia 
+                        $lookup:{
+                            from:"users",
+                            localField:"owner",
+                            foreignField:"_id",
+                            as:"owner",
+                            pipeline:[
+                                // ab owner to a gaya lakin aus kay sath aur sari fields bhi a gain to vo to nahi dani to ham nay ak aur pipline likhi but sath may yahi project laga dia to jo chiay vo lain gay baki choro
+                                {
+                                    $project:{
+                                        fullname:1,
+                                        username:1,
+                                        avatar:1,
+                                    }
+                                },
+                            ]
+                        }
+                    },
+                    {
+                        // ya ais liay banaya hay kay owner ka array ay ga to aus ko khatam karny kay liay aisi may first value lay li ya ham owner[0] asay bhi lay sakty thay
+                        $addFields:{
+                            owner:{
+                                $first:"$owner",
+                            }
+                        },
+                    }
+                ]
+            }
+        },
+    ])
+    return res.status(200).json(new ApiResponce(200,user[0].watchHistory,"Watch history fetched successfully"))
+})
 export {
     registerUser,
     loginUser,
@@ -451,4 +501,5 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
+    getWatchHistory,
 }
