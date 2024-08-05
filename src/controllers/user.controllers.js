@@ -198,8 +198,11 @@ const logoutUser = asyncHandler(async(req,res)=>{
         req.user._id,
         {
             //update karna kia hay to ham mongodb ka opearator use karin gay ya lata hay kia kia update karna hay bata do obj may 
-            $set: {
-                refreshToken: undefined
+            // $set: {
+            //     refreshToken: undefined
+            // } ais say sahi say nahi ho raha logout to ham change karin gay 
+            $unset:{
+                refreshToken:1,
             }
         },
        
@@ -221,7 +224,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
 // ya refresh token ka endpoint banin gay jo kay kam ay ga jab user ka access token expire ho jay ga to yaha say refresh kary ga token ko apny bar bar login karny say acha hay 
 const refreshAccessToken = asyncHandler(async(req,res)=>{
 const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken
-// ya 1st vala req.cookie for those how are not using the mobile and req.body for mobile users
+// ya 1st vala req.cookie for those who are not using the mobile and req.body for mobile users
 if(!incomingRefreshToken){
     throw new ApiError(401,"unauthorized request")
 }
@@ -254,7 +257,7 @@ try {
     .cookie("accessToken",accessToken,options)
     .cookie("refreshToken",newrefreshToken,options)
     .json(
-        new ApiResponse(
+        new ApiResponce(
             200,
             {accessToken,refreshToken:newrefreshToken},
             "Access Token refreshed"
@@ -444,10 +447,11 @@ return res.status(200).json(new ApiResponce(200,channel[0],"Channel profile fetc
 
 // New agragiation pipline
 const getWatchHistory = asyncHandler(async(req,res)=>{
+    const objectId = new mongoose.Types.ObjectId(req.user._id);
     const user = await User.aggregate([
         {
             $match:{
-                _id:new mongoose.Types.createFromHexString(req.user._id)
+                _id: objectId
             }
         },
         {

@@ -50,7 +50,7 @@ router.route("/change-password").post(verifyJWT,changeCurrentPassword)//ya verif
 router.route("/current-user").get(verifyJWT,getCurrentUser)
 
 // update account details 
-router.route("update-account-details").patch(verifyJWT,updateAccountDetails)
+router.route("/update-account-details").patch(verifyJWT,updateAccountDetails)
 
 //NOTE: for update avatar here is updating the image so use upload.single("avatar")
 router.route("/avatar").patch(verifyJWT,upload.single("avatar"),updateUserAvatar)
