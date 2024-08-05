@@ -1,6 +1,16 @@
 import { Router } from "express";
-import  { getUserChannelProfile, getWatchHistory, updateAccountDetails, updateUserAvatar, updateUserCoverImage }  from "../controllers/user.controllers.js";
-import { loginUser, logoutUser, registerUser,refreshAccessToken, getCurrentUser ,changeCurrentPassword} from "../controllers/user.controllers.js";
+import  { getUserChannelProfile,
+     getWatchHistory, 
+     updateAccountDetails,
+      updateUserAvatar,
+       updateUserCoverImage,
+       loginUser, 
+       logoutUser, 
+       registerUser,
+       refreshAccessToken, 
+       getCurrentUser,
+       changeCurrentPassword,
+    } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middlerware.js";
 import { verifyJWT } from "../middlewares/auth.middlewar.js";
 
